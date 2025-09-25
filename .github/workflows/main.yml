@@ -8,6 +8,32 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Free Disk Space (Ubuntu)
+        if: ${{ false }} # Set to true if space insufficient
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 7
+      - name: Include KernelSU-Next
+      run: |
+        # Asumsikan kernel source berada di root repo (ada Makefile, Kconfig, etc)
+        cd $GITHUB_WORKSPACE
+        rm -rf KernelSU 2>/dev/null
+        # coba patch dari branch main
+        if ! curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/main/kernel/setup.sh" | bash - ; then
+          # fallback ke branch next
+          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
+        fi
+          
       - name: Checkout source
         uses: actions/checkout@v4
 
